@@ -1,0 +1,34 @@
+title: PHP2Shell - Upload Filename Containing PHP Code or Serialized Object
+id: 97da85a1-3cb9-4318-beb8-36e3e71eeab0
+status: experimental
+description: |
+  Detects multipart uploads whose filename contains PHP code ("<?php") or a serialized PHP object fragment ("|O:").
+  PHP stores upload filenames in session records, so these values can be used for session poisoning in
+  PHP2Shell-style chains. Requires request-body visibility (WAF or reverse proxy).
+references:
+  - https://securitylabs.datadoghq.com/articles/php2shell-critical-vulnerabilities-in-php/
+author: Stelios Partsinevelos
+date: 2026-11-21
+tags:
+  - attack.initial-access
+  - attack.t1190
+  - attack.persistence
+  - attack.t1505.003
+logsource:
+  product: waf
+  definition: WAF or reverse proxy logs with the request body in the field "request_body".
+detection:
+  selection_method:
+    cs-method: 'POST'
+  selection_php_code:
+    request_body|contains:
+      - 'filename="<\?php'
+      - 'filename="<\?='
+  selection_serialized:
+    request_body|contains|all:
+      - 'filename="'
+      - '|O:'
+  condition: selection_method and (selection_php_code or selection_serialized)
+falsepositives:
+  - Security testing
+level: high

@@ -1,0 +1,47 @@
+title: PHP2Shell - Multipart POST Answered With HTTP 500
+id: c2d463c8-6c1e-4c5b-aec0-d19a5877ee48
+name: php2shell_multipart_500
+status: experimental
+description: |
+  Base rule: a POST request answered with HTTP 500. In captured PHP2Shell attempts, the memory-exhaustion
+  stage returned HTTP 500. Used by the correlation rule below; too noisy on its own.
+references:
+  - https://www.wiz.io/blog/php2shell-exploitation-so-far
+author: Stelios Partsinevelos
+date: 2026-11-21
+tags:
+  - attack.initial-access
+  - attack.t1190
+logsource:
+  category: webserver
+detection:
+  selection:
+    cs-method: 'POST'
+    sc-status: 500
+  condition: selection
+falsepositives:
+  - Application errors
+level: informational
+---
+title: PHP2Shell - Burst of HTTP 500 Responses to POST Requests From One Source
+id: a8e6d4b2-2ea9-486a-bea9-b196ddc7912f
+status: experimental
+description: |
+  Correlation: two or more POST requests from the same client IP to the same host answered with HTTP 500 within
+  one minute. Matches the short bursts produced by PHP2Shell memory-exhaustion stages. Correlate with the PHP
+  memory-exhaustion rule on the same host to raise confidence.
+author: Stelios Partsinevelos
+date: 2026-11-21
+correlation:
+  type: event_count
+  rules:
+    - php2shell_multipart_500
+  group-by:
+    - c-ip
+    - cs-host
+  timespan: 1m
+  condition:
+    gte: 2
+falsepositives:
+  - Application outages
+level: medium

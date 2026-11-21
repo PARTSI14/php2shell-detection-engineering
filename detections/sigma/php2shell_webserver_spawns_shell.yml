@@ -1,0 +1,47 @@
+title: PHP2Shell - Shell or Download Tool Spawned by PHP Worker
+id: 2bba00cb-c405-4aca-a9c5-f5dbbb7597ea
+status: experimental
+description: |
+  Detects a shell, download utility or reverse-shell tool started by a web server or PHP worker process.
+  After PHP2Shell remote code execution, the attacker's commands run as the web user (for example www-data)
+  under apache2, httpd or php-fpm. This is the highest-confidence signal because it does not depend on the
+  details of one exploit. Not specific to PHP2Shell: it also catches web shells and other web RCEs.
+references:
+  - https://securitylabs.datadoghq.com/articles/php2shell-critical-vulnerabilities-in-php/
+  - https://unit42.paloaltonetworks.com/cve-2026-109618-cve-2026-109619/
+author: Stelios Partsinevelos
+date: 2026-11-21
+tags:
+  - attack.execution
+  - attack.t1059.004
+  - attack.initial-access
+  - attack.t1190
+logsource:
+  category: process_creation
+  product: linux
+detection:
+  selection_parent:
+    ParentImage|endswith:
+      - '/apache2'
+      - '/httpd'
+      - '/lsphp'
+      - '/frankenphp'
+      - '/php-cgi'
+  selection_parent_fpm:
+    ParentImage|contains: '/php-fpm'
+  selection_child:
+    Image|endswith:
+      - '/sh'
+      - '/bash'
+      - '/dash'
+      - '/zsh'
+      - '/curl'
+      - '/wget'
+      - '/nc'
+      - '/ncat'
+      - '/socat'
+      - '/busybox'
+  condition: 1 of selection_parent* and selection_child
+falsepositives:
+  - Applications that legitimately run shell commands (baseline them and add filters)
+level: high

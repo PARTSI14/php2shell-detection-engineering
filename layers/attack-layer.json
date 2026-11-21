@@ -1,0 +1,108 @@
+{
+  "name": "PHP2Shell (CVE-2026-109618 / CVE-2026-109619)",
+  "versions": {
+    "attack": "20",
+    "navigator": "5.0.0",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "PHP2Shell exploitation, Oct-Nov 2026, mapped to ATT&CK Enterprise v20.1. Red = observed, orange = reported or partial, yellow = expected follow-on activity to hunt for.",
+  "sorting": 0,
+  "layout": {
+    "layout": "side",
+    "showName": true,
+    "showID": true,
+    "showAggregateScores": false,
+    "countUnscored": false,
+    "expandedSubtechniques": "annotated"
+  },
+  "hideDisabled": false,
+  "techniques": [
+    {
+      "techniqueID": "T1595.002",
+      "tactic": "reconnaissance",
+      "color": "#e60d0d",
+      "comment": "Scanners probing for vulnerable PHP before and after disclosure (Wiz, Amazon).",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1190",
+      "tactic": "initial-access",
+      "color": "#e60d0d",
+      "comment": "Unauthenticated RCE in the PHP engine; CISA KEV 26 Oct 2026; honeypot exploitation confirmed.",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1499.003",
+      "tactic": "impact",
+      "color": "#fc9f3a",
+      "comment": "Partial: stalled uploads used to occupy PHP workers as a step in the exploit chain, not as the goal.",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1212",
+      "tactic": "credential-access",
+      "color": "#fc9f3a",
+      "comment": "Reported: the memory-disclosure path can leak secrets from other requests without code execution (Wiz).",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1068",
+      "tactic": "privilege-escalation",
+      "color": "#e60d0d",
+      "comment": "PAN-OS campaign: PHP2Shell chained with a Linux kernel flaw for root (Dream Research, verified by Unit 42).",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1059.004",
+      "tactic": "execution",
+      "color": "#fce93a",
+      "comment": "Expected: commands run as the web user after RCE; hunt for shells spawned by PHP workers.",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1505.003",
+      "tactic": "persistence",
+      "color": "#fce93a",
+      "comment": "Expected: session-poisoning tooling plants PHP code; hunt for web shells.",
+      "enabled": true,
+      "showSubtechniques": true
+    },
+    {
+      "techniqueID": "T1105",
+      "tactic": "command-and-control",
+      "color": "#fce93a",
+      "comment": "Expected: download tools (curl, wget) started by PHP workers.",
+      "enabled": true,
+      "showSubtechniques": true
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#ffffff",
+      "#e60d0d"
+    ],
+    "minValue": 0,
+    "maxValue": 1
+  },
+  "legendItems": [
+    {
+      "label": "Observed",
+      "color": "#e60d0d"
+    },
+    {
+      "label": "Reported / partial",
+      "color": "#fc9f3a"
+    },
+    {
+      "label": "Expected (hunt)",
+      "color": "#fce93a"
+    }
+  ]
+}

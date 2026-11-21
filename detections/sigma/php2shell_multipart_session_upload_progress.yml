@@ -1,0 +1,34 @@
+title: PHP2Shell - Multipart Request With Session Upload Progress Field
+id: a8c5adce-c1ff-4be8-ab4f-8af4d7a07aef
+status: experimental
+description: |
+  Detects multipart POST requests that carry the PHP_SESSION_UPLOAD_PROGRESS field together with a PHPSESSID
+  field. Captured PHP2Shell exploit chains send both, often with a null-byte or one-character PHPSESSID and
+  hundreds of parts. Legitimate upload-progress forms also use this field, so treat a match as context and
+  correlate with memory-exhaustion errors from the same host.
+  Requires request-body visibility (WAF or reverse proxy with body logging); standard access logs do not
+  contain request bodies.
+references:
+  - https://www.wiz.io/blog/php2shell-exploitation-so-far
+  - https://securitylabs.datadoghq.com/articles/php2shell-critical-vulnerabilities-in-php/
+author: Stelios Partsinevelos
+date: 2026-11-21
+tags:
+  - attack.initial-access
+  - attack.t1190
+  - cve.2026-109619
+logsource:
+  product: waf
+  definition: WAF or reverse proxy logs with the request body in the field "request_body" and the Content-Type header in "cs-content-type".
+detection:
+  selection_method:
+    cs-method: 'POST'
+    cs-content-type|contains: 'multipart/form-data'
+  selection_body:
+    request_body|contains|all:
+      - 'PHP_SESSION_UPLOAD_PROGRESS'
+      - 'PHPSESSID'
+  condition: all of selection_*
+falsepositives:
+  - Applications that legitimately use PHP session upload progress
+level: medium

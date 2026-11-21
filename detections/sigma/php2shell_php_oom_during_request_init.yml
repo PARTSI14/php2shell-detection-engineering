@@ -1,0 +1,32 @@
+title: PHP2Shell - PHP Memory Exhaustion During Request Initialisation
+id: 50fcfbcb-8949-408f-b157-095aa33e176f
+status: experimental
+description: |
+  Detects a PHP fatal "Allowed memory size ... exhausted" error reported at "Unknown on line 0".
+  The "Unknown on line 0" location means PHP ran out of memory while parsing the request, before any
+  application script ran. This is the condition that CVE-2026-109618 (PHP2Shell) abuses.
+  A full exploit attempt may produce only two to four of these errors on one worker in a short window.
+references:
+  - https://securitylabs.datadoghq.com/articles/php2shell-critical-vulnerabilities-in-php/
+  - https://cert.europa.eu/publications/security-advisories/2026-018
+author: Stelios Partsinevelos
+date: 2026-11-21
+tags:
+  - attack.initial-access
+  - attack.t1190
+  - cve.2026-109618
+logsource:
+  product: php
+  service: error
+  definition: PHP error log (error_log of PHP-FPM, mod_php or php-cgi). Map the log line to the field "message".
+detection:
+  selection:
+    message|contains|all:
+      - 'Allowed memory size of'
+      - 'exhausted'
+      - 'Unknown on line 0'
+  condition: selection
+falsepositives:
+  - Legitimate very large uploads or forms on hosts with a low memory_limit
+  - Load tests and vulnerability scanners
+level: medium

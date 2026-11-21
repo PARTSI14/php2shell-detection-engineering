@@ -1,0 +1,29 @@
+title: PHP2Shell - Apache Worker Segmentation Fault
+id: 4d650172-de4c-4b09-b5a0-4d70c4090ef4
+status: experimental
+description: |
+  Detects an Apache child process exiting with a segmentation fault (AH00052). Failed PHP2Shell attempts
+  that guess memory addresses wrongly can crash the mod_php worker. Successful modern variants may not crash
+  the worker, so absence of this event is not proof of safety. Correlate with the memory-exhaustion rule.
+references:
+  - https://securitylabs.datadoghq.com/articles/php2shell-critical-vulnerabilities-in-php/
+author: Stelios Partsinevelos
+date: 2026-11-21
+tags:
+  - attack.initial-access
+  - attack.t1190
+  - cve.2026-109618
+  - cve.2026-109619
+logsource:
+  product: apache
+  service: error
+  definition: Apache error log. Map the log line to the field "message".
+detection:
+  selection:
+    message|contains|all:
+      - 'AH00052'
+      - 'Segmentation fault'
+  condition: selection
+falsepositives:
+  - Buggy PHP extensions or Apache modules
+level: medium
